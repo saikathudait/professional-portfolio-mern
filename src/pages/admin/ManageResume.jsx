@@ -6,16 +6,17 @@ import toast from 'react-hot-toast';
 
 const ManageResume = () => {
   const [loading, setLoading] = useState(true);
-  const [uploading, setUploading] = useState(false);
   const [currentUrl, setCurrentUrl] = useState('');
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [inputKey, setInputKey] = useState(Date.now());
+  const [resumeUrlInput, setResumeUrlInput] = useState('');
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     const fetchResume = async () => {
       try {
         const response = await api.get('/home');
-        setCurrentUrl(response.data.data?.cvLink || '');
+        const nextUrl = response.data.data?.cvLink || '';
+        setCurrentUrl(nextUrl);
+        setResumeUrlInput(nextUrl);
       } catch (error) {
         toast.error('Failed to load resume info');
       } finally {
@@ -26,45 +27,26 @@ const ManageResume = () => {
     fetchResume();
   }, []);
 
-  const handleFileChange = (event) => {
-    const file = event.target.files?.[0] || null;
-    setSelectedFile(file);
-  };
-
-  const handleUpload = async (event) => {
+  const handleSaveUrl = async (event) => {
     event.preventDefault();
-
-    if (!selectedFile) {
-      toast.error('Please select a PDF file');
+    const nextUrl = resumeUrlInput.trim();
+    if (!nextUrl) {
+      toast.error('Please enter a resume URL');
       return;
     }
-
-    const isPdf =
-      selectedFile.type === 'application/pdf' ||
-      selectedFile.name.toLowerCase().endsWith('.pdf');
-
-    if (!isPdf) {
-      toast.error('Only PDF files are allowed');
+    if (!/^https?:\/\//i.test(nextUrl)) {
+      toast.error('Resume URL must start with http:// or https://');
       return;
     }
-
-    const formData = new FormData();
-    formData.append('file', selectedFile);
-
     try {
-      setUploading(true);
-      const response = await api.post('/home/cv', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-      const nextUrl = response.data.url || response.data.data?.cvLink || '';
+      setSaving(true);
+      await api.put('/home', { cvLink: nextUrl });
       setCurrentUrl(nextUrl);
-      setSelectedFile(null);
-      setInputKey(Date.now());
-      toast.success('Resume uploaded successfully');
+      toast.success('Resume link updated');
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to upload resume');
+      toast.error(error.response?.data?.message || 'Failed to update resume');
     } finally {
-      setUploading(false);
+      setSaving(false);
     }
   };
 
@@ -73,9 +55,9 @@ const ManageResume = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold mb-2">Upload CV</h1>
+        <h1 className="text-3xl font-bold mb-2">Resume Link</h1>
         <p className="text-gray-600 dark:text-gray-400">
-          Upload the latest resume to display on the homepage.
+          Add a hosted resume URL to display on the homepage.
         </p>
       </div>
 
@@ -119,26 +101,26 @@ const ManageResume = () => {
           )}
         </div>
 
-        <form onSubmit={handleUpload} className="space-y-4">
+        <form onSubmit={handleSaveUrl} className="space-y-4">
           <div>
             <label className="block text-sm font-medium mb-2">
-              Upload PDF
+              Resume URL
             </label>
             <input
-              key={inputKey}
-              type="file"
-              accept="application/pdf"
-              onChange={handleFileChange}
+              type="url"
+              value={resumeUrlInput}
+              onChange={(event) => setResumeUrlInput(event.target.value)}
+              placeholder="https://example.com/resume.pdf"
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900"
             />
           </div>
 
           <button
             type="submit"
-            disabled={uploading}
+            disabled={saving}
             className="w-full px-6 py-3 bg-navy-500 text-white rounded-lg hover:bg-navy-600 dark:bg-aqua-500 dark:hover:bg-aqua-600 transition-colors font-semibold disabled:opacity-50"
           >
-            {uploading ? 'Uploading...' : 'Upload Resume'}
+            {saving ? 'Saving...' : 'Save Resume Link'}
           </button>
         </form>
       </motion.div>
