@@ -24,6 +24,33 @@ import api from '../utils/api';
 import Loading from '../components/Loading';
 import toast from 'react-hot-toast';
 
+const getDriveFileId = (url) => {
+  if (!url) return '';
+  const directMatch = url.match(/\/file\/d\/([^/]+)/);
+  if (directMatch?.[1]) return directMatch[1];
+  const idMatch = url.match(/[?&]id=([^&]+)/);
+  if (idMatch?.[1]) return idMatch[1];
+  return '';
+};
+
+const getResumePreviewUrl = (url) => {
+  if (!url) return '';
+  const driveId = getDriveFileId(url);
+  if (driveId) {
+    return `https://drive.google.com/file/d/${driveId}/preview`;
+  }
+  return url;
+};
+
+const getResumeDownloadUrl = (url) => {
+  if (!url) return '';
+  const driveId = getDriveFileId(url);
+  if (driveId) {
+    return `https://drive.google.com/uc?export=download&id=${driveId}`;
+  }
+  return url;
+};
+
 const Resume = () => {
   const [resumeUrl, setResumeUrl] = useState('');
   const [loading, setLoading] = useState(true);
@@ -81,8 +108,9 @@ const Resume = () => {
   const handleDownload = () => {
     if (!resumeUrl || downloadState === 'loading') return;
     setDownloadState('loading');
+    const downloadUrl = getResumeDownloadUrl(resumeUrl);
     const link = document.createElement('a');
-    link.href = resumeUrl;
+    link.href = downloadUrl;
     link.download = 'resume.pdf';
     link.rel = 'noopener';
     document.body.appendChild(link);
@@ -92,12 +120,14 @@ const Resume = () => {
 
   const handleOpen = () => {
     if (!resumeUrl) return;
-    window.open(resumeUrl, '_blank', 'noopener,noreferrer');
+    const previewUrl = getResumePreviewUrl(resumeUrl);
+    window.open(previewUrl, '_blank', 'noopener,noreferrer');
   };
 
   const handlePrint = () => {
     if (!resumeUrl) return;
-    const printWindow = window.open(resumeUrl, '_blank', 'noopener,noreferrer');
+    const previewUrl = getResumePreviewUrl(resumeUrl);
+    const printWindow = window.open(previewUrl, '_blank', 'noopener,noreferrer');
     if (!printWindow) {
       toast.error('Popup blocked. Allow popups to print.');
       return;
@@ -141,6 +171,9 @@ const Resume = () => {
   };
 
   if (loading) return <Loading fullScreen />;
+
+  const previewUrl = getResumePreviewUrl(resumeUrl);
+  const downloadUrl = getResumeDownloadUrl(resumeUrl);
 
   const downloadLabel =
     downloadState === 'loading'
@@ -223,7 +256,7 @@ const Resume = () => {
     {
       label: 'PDF',
       description: 'Primary format',
-      href: resumeUrl,
+      href: downloadUrl,
       from: '#3b82f6',
       to: '#06b6d4',
     },
@@ -453,9 +486,9 @@ const Resume = () => {
                           height: `${zoom * 100}%`,
                         }}
                       >
-                        {resumeUrl && (
+                        {previewUrl && (
                           <iframe
-                            src={resumeUrl}
+                            src={previewUrl}
                             title="Resume"
                             className="resume-viewer-iframe"
                             onLoad={() => setViewerLoading(false)}
