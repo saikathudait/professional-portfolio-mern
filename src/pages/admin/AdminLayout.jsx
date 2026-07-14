@@ -13,6 +13,7 @@ import {
   HiMail,
   HiCog,
   HiDocumentText,
+  HiClipboardList,
   HiLogout,
   HiMenu,
   HiX,
@@ -40,6 +41,7 @@ const AdminLayout = () => {
     { icon: HiBookOpen, label: 'Books', path: '/admin/books' },
     { icon: HiMail, label: 'Messages', path: '/admin/messages' },
     { icon: HiDocumentText, label: 'Upload CV', path: '/admin/cv' },
+    { icon: HiClipboardList, label: 'Cover Letter', path: '/admin/cover-letter' },
     { icon: HiCog, label: 'Settings', path: '/admin/settings' },
   ];
 

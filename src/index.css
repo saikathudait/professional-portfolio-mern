@@ -9256,3 +9256,111 @@ html.dark .social-circle {
     padding: 1.1rem;
   }
 }
+
+/* Resume cover letter */
+.resume-cover-letter-section {
+  margin: 2rem 0 3rem;
+}
+
+.resume-cover-letter-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 28px;
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  background:
+    radial-gradient(circle at top left, rgba(34, 211, 238, 0.18), transparent 34%),
+    linear-gradient(180deg, var(--surface-strong), var(--surface)) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: var(--card-shadow) !important;
+  color: var(--text) !important;
+}
+
+.resume-cover-letter-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(14, 165, 233, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(14, 165, 233, 0.06) 1px, transparent 1px);
+  background-size: 34px 34px;
+  -webkit-mask-image: linear-gradient(180deg, #000, transparent 78%);
+  mask-image: linear-gradient(180deg, #000, transparent 78%);
+  pointer-events: none;
+}
+
+.resume-cover-letter-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.resume-cover-letter-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.resume-cover-letter-icon {
+  display: inline-flex;
+  width: 3.25rem;
+  height: 3.25rem;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1.1rem;
+  background: var(--primary-gradient);
+  color: #ffffff;
+  box-shadow: 0 18px 34px rgba(14, 165, 233, 0.24);
+  font-size: 1.45rem;
+}
+
+.resume-cover-letter-kicker {
+  margin-bottom: 0.35rem;
+  color: var(--accent-strong) !important;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.resume-cover-letter-header h2 {
+  margin: 0;
+  color: var(--text) !important;
+  font-family: 'Space Grotesk', 'Poppins', sans-serif;
+  font-size: clamp(1.6rem, 3vw, 2.35rem);
+  letter-spacing: -0.04em;
+}
+
+.resume-cover-letter-meta {
+  margin-top: 0.35rem;
+  color: var(--muted) !important;
+  font-size: 0.92rem;
+}
+
+.resume-cover-letter-body {
+  display: grid;
+  gap: 1rem;
+  border-radius: 22px;
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+  padding: clamp(1.1rem, 3vw, 1.7rem);
+}
+
+.resume-cover-letter-body p {
+  margin: 0;
+  color: var(--text-soft) !important;
+  font-size: clamp(0.98rem, 1.6vw, 1.06rem);
+  line-height: 1.85;
+}
+
+html.dark .resume-cover-letter-card {
+  background:
+    radial-gradient(circle at top left, rgba(34, 211, 238, 0.14), transparent 36%),
+    linear-gradient(180deg, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.72)) !important;
+}
+
+@media (max-width: 640px) {
+  .resume-cover-letter-header {
+    display: grid;
+  }
+}

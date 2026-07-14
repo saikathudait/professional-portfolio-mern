@@ -8,6 +8,7 @@ import {
   HiOutlineCalendar,
   HiOutlineChartBar,
   HiOutlineClipboardCopy,
+  HiOutlineClipboardList,
   HiOutlineDocument,
   HiOutlineDocumentText,
   HiOutlineDownload,
@@ -85,12 +86,21 @@ const Resume = () => {
     pageCount: null,
     storage: '',
   });
+  const [coverLetter, setCoverLetter] = useState(null);
 
   useEffect(() => {
     const fetchResume = async () => {
       try {
-        const response = await api.get('/home', { cache: false });
-        const data = response.data.data || {};
+        const [resumeResponse, coverLetterResponse] = await Promise.allSettled([
+          api.get('/home', { cache: false }),
+          api.get('/cover-letter', { cache: false }),
+        ]);
+
+        if (resumeResponse.status !== 'fulfilled') {
+          throw resumeResponse.reason;
+        }
+
+        const data = resumeResponse.value.data.data || {};
         const cv = data.cv || {};
         const nextUrl = normalizeResumeAssetUrl(cv.link || data.cvLink || '');
         setResumeUrl(nextUrl);
@@ -102,6 +112,13 @@ const Resume = () => {
           pageCount: cv.pageCount || data.cvPageCount || null,
           storage: cv.storage || data.cvStorage || (nextUrl ? 'external' : ''),
         });
+
+        if (coverLetterResponse.status === 'fulfilled') {
+          const letter = coverLetterResponse.value.data.data;
+          setCoverLetter(letter?.content ? letter : null);
+        } else {
+          setCoverLetter(null);
+        }
       } catch (error) {
         toast.error('Failed to load resume');
       } finally {
@@ -229,6 +246,13 @@ const Resume = () => {
     uploadedLabel ? `Uploaded ${uploadedLabel}` : '',
     resumeInfo.fileName,
   ].filter(Boolean);
+  const coverLetterUpdatedLabel = formatDateLabel(coverLetter?.updatedAt);
+  const coverLetterParagraphs = coverLetter?.content
+    ? coverLetter.content
+        .split(/\n{2,}/)
+        .map((paragraph) => paragraph.trim())
+        .filter(Boolean)
+    : [];
 
   const downloadLabel =
     downloadState === 'loading'
@@ -547,6 +571,37 @@ const Resume = () => {
                 </div>
               </div>
             </div>
+
+            {coverLetterParagraphs.length > 0 && (
+              <section className="resume-cover-letter-section">
+                <div className="resume-cover-letter-card">
+                  <div className="resume-cover-letter-header">
+                    <div className="resume-cover-letter-icon">
+                      <HiOutlineClipboardList />
+                    </div>
+                    <div>
+                      <p className="resume-cover-letter-kicker">
+                        Professional Introduction
+                      </p>
+                      <h2>{coverLetter.title || 'Cover Letter'}</h2>
+                      {coverLetterUpdatedLabel && (
+                        <p className="resume-cover-letter-meta">
+                          Latest update: {coverLetterUpdatedLabel}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="resume-cover-letter-body">
+                    {coverLetterParagraphs.map((paragraph, index) => (
+                      <p key={`${paragraph.slice(0, 24)}-${index}`}>
+                        {paragraph}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+              </section>
+            )}
 
             <div className="resume-split-grid">
               <section className="resume-section">
