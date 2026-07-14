@@ -187,6 +187,14 @@ const Home = () => {
     'Python, TensorFlow, and analytics pipelines',
   ];
 
+  const signalMetrics = [
+    { label: 'Model Accuracy', value: '95%', trend: '+12%' },
+    { label: 'Dashboards', value: '20+', trend: 'BI ready' },
+    { label: 'Data Pipelines', value: '30+', trend: 'Python' },
+  ];
+
+  const pipelineSteps = ['Collect', 'Clean', 'Model', 'Visualize'];
+
   const totalExperienceLabel =
     getTotalExperienceLabel(experiences) || '0 mo';
 
@@ -366,6 +374,40 @@ const Home = () => {
                     <span>{item}</span>
                   </div>
                 ))}
+              </div>
+
+              <div className="data-command-center mt-7">
+                <div className="data-command-header">
+                  <div>
+                    <span className="data-command-kicker">Live Skill Snapshot</span>
+                    <h2>Analytics Command Center</h2>
+                  </div>
+                  <span className="data-command-status">
+                    <span />
+                    Insights online
+                  </span>
+                </div>
+                <div className="data-command-grid">
+                  {signalMetrics.map((metric) => (
+                    <div key={metric.label} className="data-command-metric">
+                      <p>{metric.label}</p>
+                      <strong>{metric.value}</strong>
+                      <span>{metric.trend}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="data-command-chart" aria-hidden="true">
+                  <span style={{ '--bar': '72%' }} />
+                  <span style={{ '--bar': '88%' }} />
+                  <span style={{ '--bar': '64%' }} />
+                  <span style={{ '--bar': '95%' }} />
+                  <span style={{ '--bar': '80%' }} />
+                </div>
+                <div className="data-pipeline">
+                  {pipelineSteps.map((step) => (
+                    <span key={step}>{step}</span>
+                  ))}
+                </div>
               </div>
 
               <motion.div

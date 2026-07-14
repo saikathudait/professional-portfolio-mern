@@ -27,9 +27,13 @@ export const ThemeProvider = ({ children }) => {
     const root = window.document.documentElement;
     if (isDark) {
       root.classList.add('dark');
+      root.dataset.theme = 'dark';
+      root.style.colorScheme = 'dark';
       setStoredValue('theme', 'dark');
     } else {
       root.classList.remove('dark');
+      root.dataset.theme = 'light';
+      root.style.colorScheme = 'light';
       setStoredValue('theme', 'light');
     }
   }, [isDark]);
