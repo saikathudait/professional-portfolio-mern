@@ -71,6 +71,92 @@ const formatDateLabel = (date) => {
   });
 };
 
+const splitIntoSentences = (text = '') =>
+  text
+    .match(/[^.!?]+[.!?]+(?:["')\]]+)?|[^.!?]+$/g)
+    ?.map((sentence) => sentence.trim())
+    .filter(Boolean) || [];
+
+const groupSentencesIntoParagraphs = (sentences) => {
+  const paragraphs = [];
+  let current = [];
+  let currentLength = 0;
+
+  sentences.forEach((sentence) => {
+    current.push(sentence);
+    currentLength += sentence.length;
+
+    if ((current.length >= 2 && currentLength >= 280) || current.length >= 3) {
+      paragraphs.push(current.join(' '));
+      current = [];
+      currentLength = 0;
+    }
+  });
+
+  if (current.length > 0) {
+    paragraphs.push(current.join(' '));
+  }
+
+  return paragraphs;
+};
+
+const formatCoverLetterContent = (content = '') => {
+  const normalized = content.replace(/\r/g, '').trim();
+  if (!normalized) {
+    return {
+      greeting: '',
+      paragraphs: [],
+      closing: '',
+      signature: '',
+    };
+  }
+
+  let workingText = normalized.replace(/\n+/g, ' ').replace(/\s+/g, ' ');
+  let greeting = '';
+  let closing = '';
+  let signature = '';
+
+  const greetingMatch = workingText.match(/^(Dear\s+[^,]{2,90},)\s*/i);
+  if (greetingMatch) {
+    greeting = greetingMatch[1];
+    workingText = workingText.slice(greetingMatch[0].length).trim();
+  }
+
+  const closingMatch = workingText.match(
+    /\s+(Sincerely|Best regards|Warm regards|Kind regards|Regards|Yours sincerely|Yours faithfully),?\s+([^,.!?]{2,90})$/i
+  );
+
+  if (closingMatch) {
+    closing = `${closingMatch[1]},`;
+    signature = closingMatch[2].trim();
+    workingText = workingText.slice(0, closingMatch.index).trim();
+  }
+
+  const explicitParagraphs = normalized
+    .split(/\n{2,}/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean);
+
+  const shouldRespectExplicitParagraphs = explicitParagraphs.length > 1;
+  const paragraphs = shouldRespectExplicitParagraphs
+    ? explicitParagraphs
+        .map((paragraph) =>
+          paragraph
+            .replace(greeting, '')
+            .replace(`${closing} ${signature}`, '')
+            .trim()
+        )
+        .filter(Boolean)
+    : groupSentencesIntoParagraphs(splitIntoSentences(workingText));
+
+  return {
+    greeting,
+    paragraphs,
+    closing,
+    signature,
+  };
+};
+
 const Resume = () => {
   const [resumeUrl, setResumeUrl] = useState('');
   const [loading, setLoading] = useState(true);
@@ -247,12 +333,10 @@ const Resume = () => {
     resumeInfo.fileName,
   ].filter(Boolean);
   const coverLetterUpdatedLabel = formatDateLabel(coverLetter?.updatedAt);
-  const coverLetterParagraphs = coverLetter?.content
-    ? coverLetter.content
-        .split(/\n{2,}/)
-        .map((paragraph) => paragraph.trim())
-        .filter(Boolean)
-    : [];
+  const coverLetterDocument = formatCoverLetterContent(
+    coverLetter?.content || ''
+  );
+  const hasCoverLetter = coverLetterDocument.paragraphs.length > 0;
 
   const downloadLabel =
     downloadState === 'loading'
@@ -572,7 +656,7 @@ const Resume = () => {
               </div>
             </div>
 
-            {coverLetterParagraphs.length > 0 && (
+            {hasCoverLetter && (
               <section className="resume-cover-letter-section">
                 <div className="resume-cover-letter-card">
                   <div className="resume-cover-letter-header">
@@ -592,12 +676,49 @@ const Resume = () => {
                     </div>
                   </div>
 
-                  <div className="resume-cover-letter-body">
-                    {coverLetterParagraphs.map((paragraph, index) => (
-                      <p key={`${paragraph.slice(0, 24)}-${index}`}>
-                        {paragraph}
-                      </p>
-                    ))}
+                  <div className="resume-cover-letter-document">
+                    <div className="resume-cover-letter-letterhead">
+                      <div>
+                        <p className="resume-cover-letter-name">
+                          Saikat Hudait
+                        </p>
+                        <p>Data Analyst | Data Visualization | AI/ML Specialist</p>
+                      </div>
+                      <div className="resume-cover-letter-contact">
+                        <span>Kolkata, India</span>
+                        <span>saikathudait2001@gmail.com</span>
+                      </div>
+                    </div>
+
+                    <div className="resume-cover-letter-divider" />
+
+                    <div className="resume-cover-letter-body">
+                      {coverLetterDocument.greeting && (
+                        <p className="resume-cover-letter-greeting">
+                          {coverLetterDocument.greeting}
+                        </p>
+                      )}
+
+                      {coverLetterDocument.paragraphs.map(
+                        (paragraph, index) => (
+                          <p key={`${paragraph.slice(0, 24)}-${index}`}>
+                            {paragraph}
+                          </p>
+                        )
+                      )}
+
+                      {(coverLetterDocument.closing ||
+                        coverLetterDocument.signature) && (
+                        <div className="resume-cover-letter-signature">
+                          {coverLetterDocument.closing && (
+                            <p>{coverLetterDocument.closing}</p>
+                          )}
+                          {coverLetterDocument.signature && (
+                            <strong>{coverLetterDocument.signature}</strong>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </section>
