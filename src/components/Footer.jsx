@@ -55,7 +55,7 @@ const Footer = () => {
           <div className="md:pr-8 lg:pr-12">
             <Link to="/" className="footer-brand" aria-label="Go to home">
               <FaBolt size={20} className="text-white/90" />
-              <span>Portfolio</span>
+              <span>Saikat Hudait</span>
             </Link>
             <p className="mt-4 text-sm text-slate-300 leading-relaxed max-w-md">
               Data Analyst & Machine Learning Engineer focused on building

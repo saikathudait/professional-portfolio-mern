@@ -47,6 +47,7 @@ const ManageBooks = lazy(() => import('./pages/admin/ManageBooks'));
 const ManageMessages = lazy(() => import('./pages/admin/ManageMessages'));
 const ManageResume = lazy(() => import('./pages/admin/ManageResume'));
 const ManageCoverLetter = lazy(() => import('./pages/admin/ManageCoverLetter'));
+const ManageAnalysis = lazy(() => import('./pages/admin/ManageAnalysis'));
 const AdminSettings = lazy(() => import('./pages/admin/AdminSettings'));
 
 const PublicLayout = () => (
@@ -137,6 +138,7 @@ function App() {
                 <Route path="messages" element={<ManageMessages />} />
                 <Route path="cv" element={<ManageResume />} />
                 <Route path="cover-letter" element={<ManageCoverLetter />} />
+                <Route path="analysis" element={<ManageAnalysis />} />
                 <Route path="settings" element={<AdminSettings />} />
                 <Route
                   path="*"

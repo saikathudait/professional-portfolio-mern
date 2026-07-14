@@ -20,6 +20,7 @@ import {
   HiMoon,
   HiSun,
   HiUser,
+  HiChartBar,
 } from 'react-icons/hi';
 
 const AdminLayout = () => {
@@ -31,6 +32,7 @@ const AdminLayout = () => {
 
   const menuItems = [
     { icon: HiHome, label: 'Dashboard', path: '/admin' },
+    { icon: HiChartBar, label: 'Analysis', path: '/admin/analysis' },
     { icon: HiUser, label: 'Home Content', path: '/admin/home' },
     { icon: HiUser, label: 'About', path: '/admin/about' },
     { icon: HiViewGrid, label: 'Projects', path: '/admin/projects' },
