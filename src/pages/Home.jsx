@@ -212,12 +212,35 @@ const Home = () => {
     },
   ];
 
-  const techPills = ['Python', 'TensorFlow', 'Power BI', 'NLP'];
-  const floatingBadges = [
-    { label: 'Python', className: '-left-6 top-6' },
-    { label: 'TensorFlow', className: '-right-8 top-16' },
-    { label: 'Power BI', className: 'left-6 -bottom-6' },
+  const profileMetrics = [
+    {
+      label: 'Predictive Models',
+      value: '95%',
+      detail: 'best accuracy',
+      icon: HiChartBar,
+    },
+    {
+      label: 'BI Dashboards',
+      value: '20+',
+      detail: 'Power BI / Tableau',
+      icon: HiPresentationChartBar,
+    },
+    {
+      label: 'Data Pipelines',
+      value: '30+',
+      detail: 'Python automations',
+      icon: HiCode,
+    },
   ];
+
+  const orbitSkills = [
+    { label: 'Python', className: 'hero-skill-node--python' },
+    { label: 'TensorFlow', className: 'hero-skill-node--tensorflow' },
+    { label: 'Power BI', className: 'hero-skill-node--powerbi' },
+    { label: 'NLP', className: 'hero-skill-node--nlp' },
+  ];
+
+  const insightBars = [58, 82, 70, 94, 76, 88];
 
   return (
     <div className="home-page min-h-screen">
@@ -260,52 +283,105 @@ const Home = () => {
               initial={{ opacity: 0, x: -40 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
-              className="relative flex flex-col items-center lg:items-start gap-6"
+              className="relative flex justify-center lg:justify-start"
             >
-              <div className="relative">
-                <div className="absolute -inset-12 bg-cyan-400/20 rounded-full blur-3xl opacity-40" />
-                <div className="relative hero-float">
-                  <div className="relative w-64 h-64 md:w-80 md:h-80">
-                    <div className="hero-orbit" />
-                    <div className="hero-avatar shadow-2xl">
-                      <div className="hero-avatar-inner">
-                        {heroImage ? (
-                          <img
-                            src={heroImage}
-                            alt={heroName || 'Profile'}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-4xl font-bold text-white">
-                            {heroInitials}
-                          </div>
-                        )}
-                      </div>
+              <div className="hero-visual-card">
+                <div className="hero-visual-glow" aria-hidden="true" />
+
+                <div className="hero-visual-topline">
+                  <span className="hero-live-dot" />
+                  <span>Analytics Profile</span>
+                  <strong>Data-ready</strong>
+                </div>
+
+                <div className="hero-portrait-stage hero-float">
+                  <div className="hero-data-grid" aria-hidden="true" />
+                  <div className="hero-orbit hero-orbit--outer" />
+                  <div className="hero-orbit hero-orbit--inner" />
+
+                  {orbitSkills.map((skill, index) => (
+                    <span
+                      key={skill.label}
+                      className={`hero-skill-node ${skill.className}`}
+                      style={{ animationDelay: `${index * 0.4}s` }}
+                    >
+                      <HiCheckCircle size={14} />
+                      {skill.label}
+                    </span>
+                  ))}
+
+                  <div className="hero-avatar hero-avatar--premium shadow-2xl">
+                    <div className="hero-avatar-inner">
+                      {heroImage ? (
+                        <img
+                          src={heroImage}
+                          alt={heroName || 'Profile'}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-4xl font-bold text-white">
+                          {heroInitials}
+                        </div>
+                      )}
                     </div>
+                  </div>
+
+                  <div className="hero-insight-card hero-insight-card--left">
+                    <span>ML Score</span>
+                    <strong>95%</strong>
+                  </div>
+
+                  <div className="hero-insight-card hero-insight-card--right">
+                    <span>Dashboards</span>
+                    <strong>20+</strong>
                   </div>
                 </div>
 
-                {floatingBadges.map((badge, index) => (
-                  <span
-                    key={badge.label}
-                    className={`hero-pill hidden md:inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs text-white/80 absolute ${badge.className}`}
-                    style={{ animationDelay: `${index * 0.6}s` }}
-                  >
-                    <HiCheckCircle className="text-cyan-300" size={14} />
-                    {badge.label}
-                  </span>
-                ))}
-              </div>
+                <div className="hero-profile-console">
+                  <div className="hero-console-header">
+                    <div>
+                      <span className="hero-console-kicker">
+                        Insight System
+                      </span>
+                      <h3>Data to Decision Pipeline</h3>
+                    </div>
+                    <span className="hero-console-status">
+                      <span />
+                      Live
+                    </span>
+                  </div>
 
-              <div className="flex flex-wrap justify-center lg:justify-start gap-3">
-                {techPills.map((pill) => (
-                  <span
-                    key={pill}
-                    className="hero-pill px-3 py-1 rounded-full text-xs text-white/80"
-                  >
-                    {pill}
-                  </span>
-                ))}
+                  <div className="hero-signal-chart" aria-hidden="true">
+                    {insightBars.map((bar, index) => (
+                      <span
+                        key={`${bar}-${index}`}
+                        style={{
+                          '--signal-height': `${bar}%`,
+                          animationDelay: `${index * 0.08}s`,
+                        }}
+                      />
+                    ))}
+                  </div>
+
+                  <div className="hero-profile-metrics">
+                    {profileMetrics.map((metric) => (
+                      <div key={metric.label} className="hero-profile-metric">
+                        <metric.icon size={17} />
+                        <div>
+                          <strong>{metric.value}</strong>
+                          <span>{metric.label}</span>
+                          <small>{metric.detail}</small>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="hero-pipeline-track">
+                    {pipelineSteps.map((step) => (
+                      <span key={step}>{step}</span>
+                    ))}
+                  </div>
+                </div>
               </div>
             </motion.div>
 
