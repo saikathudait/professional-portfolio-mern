@@ -21,6 +21,7 @@ import {
 } from 'react-icons/hi';
 import { FaLinkedinIn } from 'react-icons/fa';
 import api from '../utils/api';
+import { normalizeResumeAssetUrl } from '../utils/resumeUrl';
 import Loading from '../components/Loading';
 import toast from 'react-hot-toast';
 
@@ -51,6 +52,24 @@ const getResumeDownloadUrl = (url) => {
   return url;
 };
 
+const formatFileSize = (bytes = 0) => {
+  if (!bytes) return '';
+  const mb = bytes / (1024 * 1024);
+  if (mb >= 1) return `${mb.toFixed(2)} MB`;
+  return `${Math.max(bytes / 1024, 1).toFixed(0)} KB`;
+};
+
+const formatDateLabel = (date) => {
+  if (!date) return '';
+  const parsed = new Date(date);
+  if (Number.isNaN(parsed.getTime())) return '';
+  return parsed.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+};
+
 const Resume = () => {
   const [resumeUrl, setResumeUrl] = useState('');
   const [loading, setLoading] = useState(true);
@@ -58,19 +77,31 @@ const Resume = () => {
   const [downloadState, setDownloadState] = useState('idle');
   const [zoom, setZoom] = useState(1);
   const [copied, setCopied] = useState(false);
-
-  const resumeMeta = {
-    lastUpdated: 'Dec 2024',
-    version: '2024.1',
-    fileSize: '2.4 MB',
-    pages: '2',
-  };
+  const [resumeInfo, setResumeInfo] = useState({
+    fileName: '',
+    fileSize: 0,
+    mimeType: '',
+    uploadedAt: '',
+    pageCount: null,
+    storage: '',
+  });
 
   useEffect(() => {
     const fetchResume = async () => {
       try {
-        const response = await api.get('/home');
-        setResumeUrl(response.data.data?.cvLink || '');
+        const response = await api.get('/home', { cache: false });
+        const data = response.data.data || {};
+        const cv = data.cv || {};
+        const nextUrl = normalizeResumeAssetUrl(cv.link || data.cvLink || '');
+        setResumeUrl(nextUrl);
+        setResumeInfo({
+          fileName: cv.fileName || data.cvFileName || '',
+          fileSize: cv.fileSize || data.cvFileSize || 0,
+          mimeType: cv.mimeType || data.cvMimeType || '',
+          uploadedAt: cv.uploadedAt || data.cvUploadedAt || '',
+          pageCount: cv.pageCount || data.cvPageCount || null,
+          storage: cv.storage || data.cvStorage || (nextUrl ? 'external' : ''),
+        });
       } catch (error) {
         toast.error('Failed to load resume');
       } finally {
@@ -111,7 +142,7 @@ const Resume = () => {
     const downloadUrl = getResumeDownloadUrl(resumeUrl);
     const link = document.createElement('a');
     link.href = downloadUrl;
-    link.download = 'resume.pdf';
+    link.download = resumeInfo.fileName || 'resume.pdf';
     link.rel = 'noopener';
     document.body.appendChild(link);
     link.click();
@@ -173,7 +204,30 @@ const Resume = () => {
   if (loading) return <Loading fullScreen />;
 
   const previewUrl = getResumePreviewUrl(resumeUrl);
-  const downloadUrl = getResumeDownloadUrl(resumeUrl);
+  const uploadedLabel = formatDateLabel(resumeInfo.uploadedAt);
+  const fileSizeLabel = formatFileSize(resumeInfo.fileSize);
+  const pageLabel = resumeInfo.pageCount
+    ? `${resumeInfo.pageCount} ${resumeInfo.pageCount === 1 ? 'page' : 'pages'}`
+    : '';
+  const isPdfResume =
+    resumeInfo.mimeType === 'application/pdf' ||
+    resumeInfo.fileName.toLowerCase().endsWith('.pdf');
+  const formatLabel = isPdfResume ? 'PDF' : resumeInfo.mimeType || '';
+  const storageLabel =
+    {
+      local: 'Uploaded from admin panel',
+      cloudinary: 'Stored on Cloudinary',
+      external: 'External resume link',
+    }[resumeInfo.storage] || 'Resume source';
+  const realDetailParts = [
+    formatLabel ? `${formatLabel} format` : '',
+    pageLabel,
+    fileSizeLabel,
+  ].filter(Boolean);
+  const heroMetaItems = [
+    uploadedLabel ? `Uploaded ${uploadedLabel}` : '',
+    resumeInfo.fileName,
+  ].filter(Boolean);
 
   const downloadLabel =
     downloadState === 'loading'
@@ -185,32 +239,36 @@ const Resume = () => {
   const stats = [
     {
       label: 'Last Updated',
-      value: resumeMeta.lastUpdated,
-      detail: `Version ${resumeMeta.version}`,
+      value: uploadedLabel || 'Not recorded',
+      detail: uploadedLabel ? storageLabel : 'Upload again to record this',
       icon: HiOutlineCalendar,
       from: '#3b82f6',
       to: '#06b6d4',
     },
     {
       label: 'File Size',
-      value: resumeMeta.fileSize,
-      detail: 'Optimized PDF',
+      value: fileSizeLabel || 'Not recorded',
+      detail: resumeInfo.fileName
+        ? `Original file: ${resumeInfo.fileName}`
+        : 'Upload again to record this',
       icon: HiOutlineChartBar,
       from: '#8b5cf6',
       to: '#ec4899',
     },
     {
       label: 'Pages',
-      value: resumeMeta.pages,
-      detail: 'Full CV',
+      value: pageLabel || 'Not recorded',
+      detail: resumeInfo.pageCount ? 'Detected from uploaded PDF' : 'Page count unavailable',
       icon: HiOutlineDocumentText,
       from: '#10b981',
       to: '#06b6d4',
     },
     {
       label: 'Format',
-      value: 'PDF',
-      detail: 'Print ready',
+      value: formatLabel || 'Not recorded',
+      detail: resumeInfo.mimeType
+        ? `MIME type: ${resumeInfo.mimeType}`
+        : 'Upload again to record this',
       icon: HiOutlineBadgeCheck,
       from: '#f97316',
       to: '#facc15',
@@ -252,37 +310,6 @@ const Resume = () => {
       )}`
     : '';
 
-  const formats = [
-    {
-      label: 'PDF',
-      description: 'Primary format',
-      href: downloadUrl,
-      from: '#3b82f6',
-      to: '#06b6d4',
-    },
-    {
-      label: 'DOCX',
-      description: 'Editable copy',
-      href: '',
-      from: '#8b5cf6',
-      to: '#ec4899',
-    },
-    {
-      label: 'TXT',
-      description: 'Plain text',
-      href: '',
-      from: '#10b981',
-      to: '#22c55e',
-    },
-    {
-      label: 'Online',
-      description: 'LinkedIn profile',
-      href: '',
-      from: '#f97316',
-      to: '#facc15',
-    },
-  ];
-
   return (
     <div className="resume-page min-h-screen pt-16">
       <section className="resume-hero">
@@ -309,16 +336,17 @@ const Resume = () => {
             <span className="resume-hero-subtitle-icon">
               <HiOutlineDocumentText />
             </span>
-            View and <span className="resume-highlight">download</span> my
-            latest CV with a premium document experience.
+            View and <span className="resume-highlight">download</span> the
+            current resume PDF managed from the admin panel.
           </p>
           <div className="resume-hero-meta">
-            <span className="resume-hero-pill">
-              Updated {resumeMeta.lastUpdated}
-            </span>
-            <span className="resume-hero-pill">
-              Version {resumeMeta.version}
-            </span>
+            {(heroMetaItems.length > 0 ? heroMetaItems : ['Resume available']).map(
+              (item) => (
+                <span key={item} className="resume-hero-pill">
+                  {item}
+                </span>
+              )
+            )}
           </div>
         </div>
         <svg
@@ -369,11 +397,17 @@ const Resume = () => {
                     </div>
                     <div>
                       <p className="resume-intro-title">
-                        Latest resume is ready to view or download.
+                        {resumeInfo.fileName || 'Uploaded resume'} is ready to view or download.
                       </p>
                       <p className="resume-intro-subtitle">
-                        PDF format <span>|</span> {resumeMeta.pages} pages{' '}
-                        <span>|</span> {resumeMeta.fileSize}
+                        {realDetailParts.length > 0
+                          ? realDetailParts.map((part, index) => (
+                              <span key={part}>
+                                {index > 0 && <span> | </span>}
+                                {part}
+                              </span>
+                            ))
+                          : 'Resume details will appear after a new admin upload.'}
                       </p>
                     </div>
                   </div>
@@ -398,7 +432,7 @@ const Resume = () => {
                       <span aria-live="polite">{downloadLabel}</span>
                     </button>
                     <span className="resume-download-hint">
-                      PDF {resumeMeta.fileSize}
+                      {formatLabel || 'Resume'}{fileSizeLabel ? ` ${fileSizeLabel}` : ''}
                     </span>
                   </div>
                 </div>
@@ -590,45 +624,6 @@ const Resume = () => {
                 </div>
               </section>
             </div>
-
-            <section className="resume-section">
-              <div className="resume-section-header">
-                <h2 className="resume-section-title">Alternative Formats</h2>
-                <p className="resume-section-subtitle">
-                  Additional formats are prepared for different workflows.
-                </p>
-              </div>
-              <div className="resume-format-grid">
-                {formats.map((format) => (
-                  <a
-                    key={format.label}
-                    href={format.href || '#'}
-                    target={format.href ? '_blank' : undefined}
-                    rel={format.href ? 'noopener noreferrer' : undefined}
-                    className="resume-format-card"
-                    data-disabled={!format.href}
-                    style={{ '--from': format.from, '--to': format.to }}
-                    onClick={(event) => {
-                      if (!format.href) {
-                        event.preventDefault();
-                      }
-                    }}
-                  >
-                    <div className="resume-format-card-inner">
-                      <span className="resume-format-icon">
-                        <HiOutlineDocumentText />
-                      </span>
-                      <div>
-                        <p className="resume-format-title">{format.label}</p>
-                        <p className="resume-format-text">
-                          {format.description}
-                        </p>
-                      </div>
-                    </div>
-                  </a>
-                ))}
-              </div>
-            </section>
 
             <section className="resume-cta">
               <div className="resume-cta-card">

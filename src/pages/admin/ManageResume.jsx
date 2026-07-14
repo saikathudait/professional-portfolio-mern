@@ -10,6 +10,7 @@ import {
   HiX,
 } from 'react-icons/hi';
 import api from '../../utils/api';
+import { normalizeResumeAssetUrl } from '../../utils/resumeUrl';
 import Loading from '../../components/Loading';
 import toast from 'react-hot-toast';
 
@@ -39,8 +40,8 @@ const ManageResume = () => {
   useEffect(() => {
     const fetchResume = async () => {
       try {
-        const response = await api.get('/home');
-        setCurrentUrl(response.data.data?.cvLink || '');
+        const response = await api.get('/home', { cache: false });
+        setCurrentUrl(normalizeResumeAssetUrl(response.data.data?.cvLink || ''));
       } catch (error) {
         toast.error('Failed to load resume info');
       } finally {
@@ -102,7 +103,9 @@ const ManageResume = () => {
         },
       });
 
-      const nextUrl = response.data.url || response.data.data?.cvLink || '';
+      const nextUrl = normalizeResumeAssetUrl(
+        response.data.url || response.data.data?.cvLink || ''
+      );
       setCurrentUrl(nextUrl);
       setSelectedFile(null);
       setUploadProgress(100);
