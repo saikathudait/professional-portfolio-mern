@@ -9400,7 +9400,13 @@ html.dark .social-circle {
   color: #334155 !important;
   font-size: clamp(0.98rem, 1.5vw, 1.04rem);
   line-height: 1.9;
-  text-align: left;
+  text-align: justify;
+  text-justify: inter-word;
+}
+
+.resume-cover-letter-greeting,
+.resume-cover-letter-signature p {
+  text-align: left !important;
 }
 
 .resume-cover-letter-body p:last-child {

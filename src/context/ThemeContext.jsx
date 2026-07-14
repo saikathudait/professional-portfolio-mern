@@ -17,9 +17,7 @@ export const ThemeProvider = ({ children }) => {
     if (saved) {
       return saved === 'dark';
     }
-    if (typeof window !== 'undefined' && window.matchMedia) {
-      return window.matchMedia('(prefers-color-scheme: dark)').matches;
-    }
+    // First-time visitors should always see the portfolio in light mode.
     return false;
   });
 
