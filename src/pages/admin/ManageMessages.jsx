@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import api from '../../utils/api';
 import Loading from '../../components/Loading';
@@ -13,11 +13,7 @@ const ManageMessages = () => {
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
-  useEffect(() => {
-    fetchMessages();
-  }, [filter]);
-
-  const fetchMessages = async () => {
+  const fetchMessages = useCallback(async () => {
     try {
       const query =
         filter === 'all' ? '' : filter === 'unread' ? '?read=false' : '?read=true';
@@ -29,7 +25,11 @@ const ManageMessages = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filter]);
+
+  useEffect(() => {
+    fetchMessages();
+  }, [fetchMessages]);
 
   const handleMarkAsRead = async (id) => {
     try {

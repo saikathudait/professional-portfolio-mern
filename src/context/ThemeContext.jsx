@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import { getStoredValue, setStoredValue } from '../utils/storage';
 
 const ThemeContext = createContext();
 
@@ -12,18 +13,24 @@ export const useTheme = () => {
 
 export const ThemeProvider = ({ children }) => {
   const [isDark, setIsDark] = useState(() => {
-    const saved = localStorage.getItem('theme');
-    return saved ? saved === 'dark' : false;
+    const saved = getStoredValue('theme');
+    if (saved) {
+      return saved === 'dark';
+    }
+    if (typeof window !== 'undefined' && window.matchMedia) {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    return false;
   });
 
   useEffect(() => {
     const root = window.document.documentElement;
     if (isDark) {
       root.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
+      setStoredValue('theme', 'dark');
     } else {
       root.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
+      setStoredValue('theme', 'light');
     }
   }, [isDark]);
 

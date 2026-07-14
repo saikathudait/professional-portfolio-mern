@@ -1,6 +1,12 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import api from '../utils/api';
 import toast from 'react-hot-toast';
+import {
+  getStoredJson,
+  getStoredValue,
+  removeStoredValue,
+  setStoredValue,
+} from '../utils/storage';
 
 const AuthContext = createContext();
 
@@ -13,28 +19,29 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => getStoredJson('user'));
   const [loading, setLoading] = useState(true);
-  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [token, setToken] = useState(() => getStoredValue('token'));
 
   // Check if user is logged in on mount
   useEffect(() => {
     const initializeAuth = async () => {
-      const storedToken = localStorage.getItem('token');
-      const storedUser = localStorage.getItem('user');
+      const storedToken = getStoredValue('token');
+      const storedUser = getStoredJson('user');
 
       if (storedToken && storedUser) {
         setToken(storedToken);
-        setUser(JSON.parse(storedUser));
+        setUser(storedUser);
         
         // Verify token is still valid
         try {
-          const response = await api.get('/auth/me');
+          const response = await api.get('/auth/me', { retry: false });
           setUser(response.data.user);
+          setStoredValue('user', JSON.stringify(response.data.user));
         } catch (error) {
           // Token is invalid, clear storage
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
+          removeStoredValue('token');
+          removeStoredValue('user');
           setToken(null);
           setUser(null);
         }
@@ -51,8 +58,8 @@ export const AuthProvider = ({ children }) => {
       const response = await api.post('/auth/login', { email, password });
       const { token: newToken, user: newUser } = response.data;
 
-      localStorage.setItem('token', newToken);
-      localStorage.setItem('user', JSON.stringify(newUser));
+      setStoredValue('token', newToken);
+      setStoredValue('user', JSON.stringify(newUser));
       setToken(newToken);
       setUser(newUser);
 
@@ -75,8 +82,8 @@ export const AuthProvider = ({ children }) => {
       });
       const { token: newToken, user: newUser } = response.data;
 
-      localStorage.setItem('token', newToken);
-      localStorage.setItem('user', JSON.stringify(newUser));
+      setStoredValue('token', newToken);
+      setStoredValue('user', JSON.stringify(newUser));
       setToken(newToken);
       setUser(newUser);
 
@@ -96,8 +103,8 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+      removeStoredValue('token');
+      removeStoredValue('user');
       setToken(null);
       setUser(null);
       toast.success('Logged out successfully');
@@ -110,7 +117,7 @@ export const AuthProvider = ({ children }) => {
       const response = await api.put('/auth/update', data);
       const updatedUser = response.data.user;
       
-      localStorage.setItem('user', JSON.stringify(updatedUser));
+      setStoredValue('user', JSON.stringify(updatedUser));
       setUser(updatedUser);
       
       toast.success('Profile updated successfully');
@@ -130,7 +137,7 @@ export const AuthProvider = ({ children }) => {
     register,
     logout,
     updateProfile,
-    isAuthenticated: !!user,
+    isAuthenticated: !!token && !!user,
     isAdmin: user?.role === 'admin',
   };
 

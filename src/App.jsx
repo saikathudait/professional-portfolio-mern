@@ -1,52 +1,68 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Suspense, lazy } from 'react';
+import {
+  BrowserRouter as Router,
+  Outlet,
+  Route,
+  Routes,
+} from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
-
-// Layout Components
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
 import FaviconUpdater from './components/FaviconUpdater';
+import Loading from './components/Loading';
+import ScrollToTop from './components/ScrollToTop';
+import AnalyticsTracker from './components/AnalyticsTracker';
 
-// Public Pages
-import Home from './pages/Home';
-import About from './pages/About';
-import Education from './pages/Education';
-import Experience from './pages/Experience';
-import Skills from './pages/Skills';
-import Projects from './pages/Projects';
-import ProjectDetail from './pages/ProjectDetail';
-import Books from './pages/Books';
-import BookDetail from './pages/BookDetail';
-import BooksTable from './pages/BooksTable';
-import Blog from './pages/Blog';
-import BlogTable from './pages/BlogTable';
-import BlogPost from './pages/BlogPost';
-import Contact from './pages/Contact';
-import Resume from './pages/Resume';
+const Home = lazy(() => import('./pages/Home'));
+const About = lazy(() => import('./pages/About'));
+const Education = lazy(() => import('./pages/Education'));
+const Experience = lazy(() => import('./pages/Experience'));
+const Skills = lazy(() => import('./pages/Skills'));
+const Projects = lazy(() => import('./pages/Projects'));
+const ProjectDetail = lazy(() => import('./pages/ProjectDetail'));
+const Books = lazy(() => import('./pages/Books'));
+const BookDetail = lazy(() => import('./pages/BookDetail'));
+const BooksTable = lazy(() => import('./pages/BooksTable'));
+const Blog = lazy(() => import('./pages/Blog'));
+const BlogTable = lazy(() => import('./pages/BlogTable'));
+const BlogPost = lazy(() => import('./pages/BlogPost'));
+const Contact = lazy(() => import('./pages/Contact'));
+const Resume = lazy(() => import('./pages/Resume'));
+const NotFound = lazy(() => import('./pages/NotFound'));
 
-// Admin Pages
-import AdminLogin from './pages/admin/AdminLogin';
-import AdminLayout from './pages/admin/AdminLayout';
-import AdminDashboard from './pages/admin/AdminDashboard';
-import ManageHome from './pages/admin/ManageHome';
-import ManageAbout from './pages/admin/ManageAbout';
-import ManageProjects from './pages/admin/ManageProjects';
-import ManageBlog from './pages/admin/ManageBlog';
-import ManageSkills from './pages/admin/ManageSkills';
-import ManageExperience from './pages/admin/ManageExperience';
-import ManageEducation from './pages/admin/ManageEducation';
-import ManageBooks from './pages/admin/ManageBooks';
-import ManageMessages from './pages/admin/ManageMessages';
-import ManageResume from './pages/admin/ManageResume';
-import AdminSettings from './pages/admin/AdminSettings';
+const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
+const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'));
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+const ManageHome = lazy(() => import('./pages/admin/ManageHome'));
+const ManageAbout = lazy(() => import('./pages/admin/ManageAbout'));
+const ManageProjects = lazy(() => import('./pages/admin/ManageProjects'));
+const ManageBlog = lazy(() => import('./pages/admin/ManageBlog'));
+const ManageSkills = lazy(() => import('./pages/admin/ManageSkills'));
+const ManageExperience = lazy(() => import('./pages/admin/ManageExperience'));
+const ManageEducation = lazy(() => import('./pages/admin/ManageEducation'));
+const ManageBooks = lazy(() => import('./pages/admin/ManageBooks'));
+const ManageMessages = lazy(() => import('./pages/admin/ManageMessages'));
+const ManageResume = lazy(() => import('./pages/admin/ManageResume'));
+const AdminSettings = lazy(() => import('./pages/admin/AdminSettings'));
+
+const PublicLayout = () => (
+  <>
+    <Navbar />
+    <Outlet />
+    <Footer />
+  </>
+);
 
 function App() {
   return (
     <Router>
       <ThemeProvider>
         <AuthProvider>
+          <ScrollToTop />
+          <AnalyticsTracker />
           <FaviconUpdater />
           <Toaster
             position="top-right"
@@ -73,61 +89,63 @@ function App() {
             }}
           />
 
-          <Routes>
-            {/* Public Routes */}
-            <Route
-              path="/*"
-              element={
-                <>
-                  <Navbar />
-                  <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/about" element={<About />} />
-                    <Route path="/education" element={<Education />} />
-                    <Route path="/experience" element={<Experience />} />
-                    <Route path="/skills" element={<Skills />} />
-                    <Route path="/projects" element={<Projects />} />
-                    <Route path="/projects/:id" element={<ProjectDetail />} />
-                    <Route path="/books" element={<Books />} />
-                    <Route path="/books/all" element={<BooksTable />} />
-                    <Route path="/books/:id" element={<BookDetail />} />
-                    <Route path="/blog" element={<Blog />} />
-                    <Route path="/blog/all" element={<BlogTable />} />
-                    <Route path="/blog/:slug" element={<BlogPost />} />
-                    <Route path="/contact" element={<Contact />} />
-                    <Route path="/resume" element={<Resume />} />
-                  </Routes>
-                  <Footer />
-                </>
-              }
-            />
+          <Suspense fallback={<Loading fullScreen />}>
+            <Routes>
+              <Route element={<PublicLayout />}>
+                <Route path="/" element={<Home />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/education" element={<Education />} />
+                <Route path="/experience" element={<Experience />} />
+                <Route path="/skills" element={<Skills />} />
+                <Route path="/projects" element={<Projects />} />
+                <Route path="/projects/:id" element={<ProjectDetail />} />
+                <Route path="/books" element={<Books />} />
+                <Route path="/books/all" element={<BooksTable />} />
+                <Route path="/books/:id" element={<BookDetail />} />
+                <Route path="/blog" element={<Blog />} />
+                <Route path="/blog/all" element={<BlogTable />} />
+                <Route path="/blog/:slug" element={<BlogPost />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/resume" element={<Resume />} />
+                <Route path="*" element={<NotFound />} />
+              </Route>
 
-            {/* Admin Login Route */}
-            <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/admin/login" element={<AdminLogin />} />
 
-            {/* Admin Routes */}
-            <Route
-              path="/admin"
-              element={
-                <ProtectedRoute>
-                  <AdminLayout />
-                </ProtectedRoute>
-              }
-            >
-              <Route index element={<AdminDashboard />} />
-              <Route path="home" element={<ManageHome />} />
-              <Route path="about" element={<ManageAbout />} />
-              <Route path="projects" element={<ManageProjects />} />
-              <Route path="blog" element={<ManageBlog />} />
-              <Route path="skills" element={<ManageSkills />} />
-              <Route path="experience" element={<ManageExperience />} />
-              <Route path="education" element={<ManageEducation />} />
-              <Route path="books" element={<ManageBooks />} />
-              <Route path="messages" element={<ManageMessages />} />
-              <Route path="cv" element={<ManageResume />} />
-              <Route path="settings" element={<AdminSettings />} />
-            </Route>
-          </Routes>
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute>
+                    <AdminLayout />
+                  </ProtectedRoute>
+                }
+              >
+                <Route index element={<AdminDashboard />} />
+                <Route path="home" element={<ManageHome />} />
+                <Route path="about" element={<ManageAbout />} />
+                <Route path="projects" element={<ManageProjects />} />
+                <Route path="blog" element={<ManageBlog />} />
+                <Route path="skills" element={<ManageSkills />} />
+                <Route path="experience" element={<ManageExperience />} />
+                <Route path="education" element={<ManageEducation />} />
+                <Route path="books" element={<ManageBooks />} />
+                <Route path="messages" element={<ManageMessages />} />
+                <Route path="cv" element={<ManageResume />} />
+                <Route path="settings" element={<AdminSettings />} />
+                <Route
+                  path="*"
+                  element={
+                    <NotFound
+                      title="Admin Page Not Found"
+                      message="The admin page you requested does not exist."
+                      linkTo="/admin"
+                      linkLabel="Back to Dashboard"
+                    />
+                  }
+                />
+              </Route>
+            </Routes>
+          </Suspense>
         </AuthProvider>
       </ThemeProvider>
     </Router>

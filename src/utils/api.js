@@ -1,4 +1,10 @@
 import axios from 'axios';
+import {
+  getStoredJson,
+  getStoredValue,
+  removeStoredValue,
+  setStoredValue,
+} from './storage';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -16,6 +22,14 @@ const LOCAL_CACHE_PREFIX = 'api_cache_v1:';
 const LOCAL_CACHE_INDEX = 'api_cache_index_v1';
 const MAX_RETRY = 2;
 const responseCache = new Map();
+
+const clearAuthStorage = () => {
+  removeStoredValue('token');
+  removeStoredValue('user');
+};
+
+const shouldRedirectToAdminLogin = () =>
+  typeof window !== 'undefined' && window.location.pathname.startsWith('/admin');
 
 const getCacheKey = (config) => {
   const base = config.baseURL || '';
@@ -40,7 +54,7 @@ const getLocalCacheKey = (config) =>
 const readLocalCache = (config) => {
   try {
     const key = getLocalCacheKey(config);
-    const raw = localStorage.getItem(key);
+    const raw = getStoredValue(key);
     if (!raw) return null;
     const parsed = JSON.parse(raw);
     if (!parsed?.timestamp || !('data' in parsed)) return null;
@@ -54,15 +68,11 @@ const readLocalCache = (config) => {
 const writeLocalCache = (config, response) => {
   try {
     const key = getLocalCacheKey(config);
-    localStorage.setItem(
-      key,
-      JSON.stringify({ timestamp: Date.now(), data: response.data })
-    );
-    const existing = localStorage.getItem(LOCAL_CACHE_INDEX);
-    const index = existing ? JSON.parse(existing) : [];
+    setStoredValue(key, JSON.stringify({ timestamp: Date.now(), data: response.data }));
+    const index = getStoredJson(LOCAL_CACHE_INDEX, []);
     if (Array.isArray(index) && !index.includes(key)) {
       index.push(key);
-      localStorage.setItem(LOCAL_CACHE_INDEX, JSON.stringify(index));
+      setStoredValue(LOCAL_CACHE_INDEX, JSON.stringify(index));
     }
   } catch {
     // Ignore cache write errors
@@ -71,13 +81,11 @@ const writeLocalCache = (config, response) => {
 
 const clearLocalCache = () => {
   try {
-    const existing = localStorage.getItem(LOCAL_CACHE_INDEX);
-    if (!existing) return;
-    const index = JSON.parse(existing);
+    const index = getStoredJson(LOCAL_CACHE_INDEX, []);
     if (Array.isArray(index)) {
-      index.forEach((key) => localStorage.removeItem(key));
+      index.forEach((key) => removeStoredValue(key));
     }
-    localStorage.removeItem(LOCAL_CACHE_INDEX);
+    removeStoredValue(LOCAL_CACHE_INDEX);
   } catch {
     // Ignore cache clear errors
   }
@@ -88,7 +96,7 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 // Request interceptor to add token
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = getStoredValue('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -142,9 +150,10 @@ api.interceptors.response.use(
   async (error) => {
     const status = error.response?.status;
     if (status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/admin/login';
+      clearAuthStorage();
+      if (shouldRedirectToAdminLogin()) {
+        window.location.replace('/admin/login');
+      }
     }
     const config = error.config || {};
     const shouldRetry =

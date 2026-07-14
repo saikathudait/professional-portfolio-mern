@@ -124,17 +124,17 @@ const Footer = () => {
       <div className="footer-bottom">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-3 text-sm text-slate-400">
-            <p>(c) {currentYear} Saikat Hudait. All rights reserved.</p>
+            <p>&copy; {currentYear} Saikat Hudait. All rights reserved.</p>
             <div className="flex flex-wrap items-center gap-4">
               <span className="flex items-center gap-2">
-                Made with
+                Built with <FaHeart className="text-rose-400" size={12} />
                 by Saikat Hudait
               </span>
               <Link
                 to="/admin/login"
                 className="text-xs text-slate-500 hover:text-cyan-300 transition-colors"
               >
-                AL
+                Admin
               </Link>
               <button
                 type="button"

@@ -7,10 +7,8 @@ import {
   HiPlus,
   HiPencil,
   HiTrash,
-  HiExternalLink,
   HiX,
 } from 'react-icons/hi';
-import { FaGithub } from 'react-icons/fa';
 
 const ManageProjects = () => {
   const [projects, setProjects] = useState([]);

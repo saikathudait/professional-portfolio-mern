@@ -1,21 +1,29 @@
 // Format date
 export const formatDate = (date) => {
+  if (!date) return 'Date unavailable';
+  const parsedDate = new Date(date);
+  if (Number.isNaN(parsedDate.getTime())) {
+    return 'Date unavailable';
+  }
   const options = { year: 'numeric', month: 'long', day: 'numeric' };
-  return new Date(date).toLocaleDateString('en-US', options);
+  return parsedDate.toLocaleDateString('en-US', options);
 };
 
 // Truncate text
 export const truncateText = (text, maxLength = 150) => {
-  if (text.length <= maxLength) return text;
-  return text.substr(0, maxLength) + '...';
+  const value = text || '';
+  if (value.length <= maxLength) return value;
+  return `${value.slice(0, maxLength)}...`;
 };
 
 // Get reading time
 export const getReadingTime = (content) => {
+  if (!content) return '1 min read';
   const wordsPerMinute = 200;
-  const wordCount = content.split(/\s+/).length;
+  const plainText = content.replace(/<[^>]*>/g, ' ').trim();
+  const wordCount = plainText ? plainText.split(/\s+/).length : 0;
   const readingTime = Math.ceil(wordCount / wordsPerMinute);
-  return `${readingTime} min read`;
+  return `${Math.max(readingTime, 1)} min read`;
 };
 
 // Validate email
