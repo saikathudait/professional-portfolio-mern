@@ -216,6 +216,7 @@ const Resume = () => {
   const storageLabel =
     {
       local: 'Uploaded from admin panel',
+      mongodb: 'Stored securely in database',
       cloudinary: 'Stored on Cloudinary',
       external: 'External resume link',
     }[resumeInfo.storage] || 'Resume source';

@@ -18,8 +18,21 @@ const getUploadPath = (value = '') => {
   return match ? `/uploads/${match[1]}` : '';
 };
 
+const getResumeApiPath = (value = '') => {
+  const normalized = value.replace(/\\/g, '/');
+  return /^\/?api\/home\/cv\/file$/.test(normalized)
+    ? '/api/home/cv/file'
+    : '';
+};
+
 export const normalizeResumeAssetUrl = (url) => {
   if (!url) return '';
+
+  const directResumeApiPath = getResumeApiPath(url);
+  if (directResumeApiPath) {
+    const origin = getApiAssetOrigin();
+    return origin ? `${origin}${directResumeApiPath}` : directResumeApiPath;
+  }
 
   const directUploadPath = getUploadPath(url);
   if (directUploadPath) {
@@ -33,9 +46,10 @@ export const normalizeResumeAssetUrl = (url) => {
         ? window.location.origin
         : 'http://localhost';
     const parsedUrl = new URL(url, fallbackOrigin);
+    const resumeApiPath = getResumeApiPath(parsedUrl.pathname);
     const uploadPath = getUploadPath(parsedUrl.pathname);
 
-    if (!uploadPath) {
+    if (!resumeApiPath && !uploadPath) {
       return url;
     }
 
@@ -44,7 +58,7 @@ export const normalizeResumeAssetUrl = (url) => {
       ? parsedUrl.origin
       : getApiAssetOrigin() || parsedUrl.origin;
 
-    return `${origin}${uploadPath}`;
+    return `${origin}${resumeApiPath || uploadPath}`;
   } catch {
     return url;
   }
