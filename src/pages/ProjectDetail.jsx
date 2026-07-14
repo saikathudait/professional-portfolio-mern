@@ -53,7 +53,7 @@ const ProjectDetail = () => {
 
   if (!project) {
     return (
-      <div className="min-h-screen pt-16 flex items-center justify-center">
+      <div className="project-detail-page not-found-page min-h-screen pt-16 flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-4">Project Not Found</h2>
           <Link
@@ -68,12 +68,12 @@ const ProjectDetail = () => {
   }
 
   return (
-    <div className="min-h-screen pt-16">
+    <div className="project-detail-page min-h-screen pt-16">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         {/* Back Button */}
         <button
           onClick={() => navigate('/projects')}
-          className="flex items-center text-navy-500 dark:text-aqua-500 hover:underline mb-8"
+          className="project-detail-back flex items-center text-navy-500 dark:text-aqua-500 hover:underline mb-8"
         >
           <HiArrowLeft className="mr-2" />
           Back to Projects
@@ -84,14 +84,15 @@ const ProjectDetail = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
+          className="project-detail-header"
         >
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
+          <h1 className="project-detail-title-main text-4xl md:text-5xl font-bold mb-4">
             {project.title}
           </h1>
 
           <div className="flex flex-wrap gap-4 mb-8">
             {project.category && (
-              <span className="px-4 py-2 bg-navy-100 dark:bg-navy-900 text-navy-600 dark:text-aqua-400 rounded-full font-semibold">
+              <span className="project-detail-pill px-4 py-2 bg-navy-100 dark:bg-navy-900 text-navy-600 dark:text-aqua-400 rounded-full font-semibold">
                 {project.category}
               </span>
             )}
@@ -109,7 +110,7 @@ const ProjectDetail = () => {
                 href={project.githubLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
+                className="project-detail-action project-detail-action--github flex items-center px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
               >
                 <FaGithub className="mr-2" size={20} />
                 View on GitHub
@@ -120,7 +121,7 @@ const ProjectDetail = () => {
                 href={project.liveLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center px-6 py-3 bg-navy-500 text-white rounded-lg hover:bg-navy-600 dark:bg-aqua-500 dark:hover:bg-aqua-600 transition-colors"
+                className="project-detail-action project-detail-action--live flex items-center px-6 py-3 bg-navy-500 text-white rounded-lg hover:bg-navy-600 dark:bg-aqua-500 dark:hover:bg-aqua-600 transition-colors"
               >
                 <HiExternalLink className="mr-2" size={20} />
                 Live Demo
@@ -135,7 +136,7 @@ const ProjectDetail = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="mb-12"
+            className="project-detail-gallery mb-12"
           >
             <div className="relative rounded-2xl overflow-hidden shadow-2xl">
               <img
@@ -149,13 +150,13 @@ const ProjectDetail = () => {
                 <>
                   <button
                     onClick={prevImage}
-                    className="absolute left-4 top-1/2 transform -translate-y-1/2 p-2 bg-white/80 dark:bg-gray-900/80 rounded-full hover:bg-white dark:hover:bg-gray-900 transition-colors"
+                    className="project-detail-carousel-btn absolute left-4 top-1/2 transform -translate-y-1/2 p-2 bg-white/80 dark:bg-gray-900/80 rounded-full hover:bg-white dark:hover:bg-gray-900 transition-colors"
                   >
                     <HiChevronLeft size={24} />
                   </button>
                   <button
                     onClick={nextImage}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 p-2 bg-white/80 dark:bg-gray-900/80 rounded-full hover:bg-white dark:hover:bg-gray-900 transition-colors"
+                    className="project-detail-carousel-btn absolute right-4 top-1/2 transform -translate-y-1/2 p-2 bg-white/80 dark:bg-gray-900/80 rounded-full hover:bg-white dark:hover:bg-gray-900 transition-colors"
                   >
                     <HiChevronRight size={24} />
                   </button>
@@ -187,6 +188,7 @@ const ProjectDetail = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.3 }}
+              className="project-detail-copy"
             >
               <h2 className="text-2xl font-bold mb-4">About This Project</h2>
               <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
@@ -209,7 +211,7 @@ const ProjectDetail = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.4 }}
-              className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-6 sticky top-24"
+              className="project-detail-sidebar bg-gray-50 dark:bg-gray-800 rounded-2xl p-6 sticky top-24"
             >
               {/* Technologies */}
               {project.technologies && project.technologies.length > 0 && (
@@ -219,7 +221,7 @@ const ProjectDetail = () => {
                     {project.technologies.map((tech, index) => (
                       <span
                         key={index}
-                        className="px-3 py-1 bg-navy-100 dark:bg-navy-900 text-navy-600 dark:text-aqua-400 rounded-full text-sm"
+                        className="project-detail-tech-pill px-3 py-1 bg-navy-100 dark:bg-navy-900 text-navy-600 dark:text-aqua-400 rounded-full text-sm"
                       >
                         {tech}
                       </span>
@@ -235,7 +237,7 @@ const ProjectDetail = () => {
                     href={project.githubLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block w-full px-4 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors text-center font-semibold"
+                    className="project-detail-side-link project-detail-side-link--github block w-full px-4 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors text-center font-semibold"
                   >
                     <FaGithub className="inline mr-2" size={20} />
                     Source Code
@@ -246,7 +248,7 @@ const ProjectDetail = () => {
                     href={project.liveLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block w-full px-4 py-3 bg-navy-500 text-white rounded-lg hover:bg-navy-600 dark:bg-aqua-500 dark:hover:bg-aqua-600 transition-colors text-center font-semibold"
+                    className="project-detail-side-link project-detail-side-link--live block w-full px-4 py-3 bg-navy-500 text-white rounded-lg hover:bg-navy-600 dark:bg-aqua-500 dark:hover:bg-aqua-600 transition-colors text-center font-semibold"
                   >
                     <HiExternalLink className="inline mr-2" size={20} />
                     Live Demo

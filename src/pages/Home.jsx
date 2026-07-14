@@ -220,7 +220,7 @@ const Home = () => {
   ];
 
   return (
-    <div className="min-h-screen">
+    <div className="home-page min-h-screen">
       {/* Hero Section */}
       <section className="relative min-h-screen hero-gradient overflow-hidden">
         {/* Background Layers */}
@@ -594,7 +594,7 @@ const Home = () => {
 
       {/* Featured Projects Section */}
       {featuredProjects.length > 0 && (
-        <section className="py-20 bg-gray-50 dark:bg-gray-800">
+        <section className="home-featured-section py-20 bg-gray-50 dark:bg-gray-800">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -619,7 +619,7 @@ const Home = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   viewport={{ once: true }}
-                  className="bg-white dark:bg-gray-900 rounded-2xl overflow-hidden shadow-lg card-hover"
+                  className="home-featured-card bg-white dark:bg-gray-900 rounded-2xl overflow-hidden shadow-lg card-hover"
                 >
                   {project.images?.[0] && (
                     <img
@@ -630,14 +630,14 @@ const Home = () => {
                   )}
                   <div className="p-6">
                     <h3 className="text-xl font-bold mb-3">{project.title}</h3>
-                    <p className="text-gray-600 dark:text-gray-400 mb-4">
+                    <p className="home-featured-description text-gray-600 dark:text-gray-400 mb-4">
                       {project.description}
                     </p>
                     <div className="flex flex-wrap gap-2 mb-4">
                       {project.technologies?.slice(0, 3).map((tech, i) => (
                         <span
                           key={i}
-                          className="px-3 py-1 bg-navy-100 dark:bg-navy-900 text-navy-600 dark:text-aqua-400 rounded-full text-sm"
+                          className="home-tech-pill px-3 py-1 bg-navy-100 dark:bg-navy-900 text-navy-600 dark:text-aqua-400 rounded-full text-sm"
                         >
                           {tech}
                         </span>
@@ -645,7 +645,7 @@ const Home = () => {
                     </div>
                     <Link
                       to={`/projects/${project._id}`}
-                      className="text-navy-500 dark:text-aqua-500 font-semibold hover:underline flex items-center"
+                      className="home-featured-link text-navy-500 dark:text-aqua-500 font-semibold hover:underline flex items-center"
                     >
                       View Details
                       <HiArrowRight className="ml-1" />
@@ -664,7 +664,7 @@ const Home = () => {
             >
               <Link
                 to="/projects"
-                className="inline-block px-8 py-4 bg-navy-500 text-white rounded-lg hover:bg-navy-600 dark:bg-aqua-500 dark:hover:bg-aqua-600 transition-colors font-semibold"
+                className="home-section-button inline-block px-8 py-4 bg-navy-500 text-white rounded-lg hover:bg-navy-600 dark:bg-aqua-500 dark:hover:bg-aqua-600 transition-colors font-semibold"
               >
                 View All Projects
               </Link>
@@ -674,7 +674,7 @@ const Home = () => {
       )}
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-navy-600 to-aqua-500">
+      <section className="home-cta-section py-20 bg-gradient-to-r from-navy-600 to-aqua-500">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -690,7 +690,7 @@ const Home = () => {
             </p>
             <Link
               to="/contact"
-              className="inline-block px-8 py-4 bg-white text-navy-600 rounded-lg hover:bg-gray-100 transition-colors font-semibold shadow-lg"
+              className="home-cta-button inline-block px-8 py-4 bg-white text-navy-600 rounded-lg hover:bg-gray-100 transition-colors font-semibold shadow-lg"
             >
               Start a Conversation
             </Link>

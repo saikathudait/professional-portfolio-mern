@@ -51,7 +51,9 @@ const AdminSettings = lazy(() => import('./pages/admin/AdminSettings'));
 const PublicLayout = () => (
   <>
     <Navbar />
-    <Outlet />
+    <main className="public-main">
+      <Outlet />
+    </main>
     <Footer />
   </>
 );
@@ -69,21 +71,23 @@ function App() {
             toastOptions={{
               duration: 3000,
               style: {
-                background: '#363636',
-                color: '#fff',
+                background: 'var(--surface-strong)',
+                color: 'var(--text)',
+                border: '1px solid var(--border)',
+                boxShadow: 'var(--card-shadow)',
               },
               success: {
                 duration: 3000,
                 iconTheme: {
-                  primary: '#00ffff',
-                  secondary: '#fff',
+                  primary: 'var(--accent-2)',
+                  secondary: 'var(--surface-strong)',
                 },
               },
               error: {
                 duration: 4000,
                 iconTheme: {
-                  primary: '#ff4b4b',
-                  secondary: '#fff',
+                  primary: '#ef4444',
+                  secondary: 'var(--surface-strong)',
                 },
               },
             }}
