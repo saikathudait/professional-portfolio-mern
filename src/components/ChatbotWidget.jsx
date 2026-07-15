@@ -102,8 +102,7 @@ const ChatbotWidget = () => {
                 <HiSparkles />
               </span>
               <div>
-                <p>Ask Saikat AI</p>
-                <span>Portfolio guide powered by Groq</span>
+                <p>Talk with Me</p>
               </div>
             </div>
             <button
