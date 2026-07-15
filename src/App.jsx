@@ -15,6 +15,7 @@ import FaviconUpdater from './components/FaviconUpdater';
 import Loading from './components/Loading';
 import ScrollToTop from './components/ScrollToTop';
 import AnalyticsTracker from './components/AnalyticsTracker';
+import ChatbotWidget from './components/ChatbotWidget';
 
 const Home = lazy(() => import('./pages/Home'));
 const About = lazy(() => import('./pages/About'));
@@ -48,6 +49,7 @@ const ManageMessages = lazy(() => import('./pages/admin/ManageMessages'));
 const ManageResume = lazy(() => import('./pages/admin/ManageResume'));
 const ManageCoverLetter = lazy(() => import('./pages/admin/ManageCoverLetter'));
 const ManageAnalysis = lazy(() => import('./pages/admin/ManageAnalysis'));
+const ManageApiKey = lazy(() => import('./pages/admin/ManageApiKey'));
 const AdminSettings = lazy(() => import('./pages/admin/AdminSettings'));
 
 const PublicLayout = () => (
@@ -57,6 +59,7 @@ const PublicLayout = () => (
       <Outlet />
     </main>
     <Footer />
+    <ChatbotWidget />
   </>
 );
 
@@ -139,6 +142,7 @@ function App() {
                 <Route path="cv" element={<ManageResume />} />
                 <Route path="cover-letter" element={<ManageCoverLetter />} />
                 <Route path="analysis" element={<ManageAnalysis />} />
+                <Route path="api-key" element={<ManageApiKey />} />
                 <Route path="settings" element={<AdminSettings />} />
                 <Route
                   path="*"

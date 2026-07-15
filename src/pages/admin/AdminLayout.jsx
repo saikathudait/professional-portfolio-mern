@@ -21,6 +21,7 @@ import {
   HiSun,
   HiUser,
   HiChartBar,
+  HiKey,
 } from 'react-icons/hi';
 
 const AdminLayout = () => {
@@ -44,6 +45,7 @@ const AdminLayout = () => {
     { icon: HiMail, label: 'Messages', path: '/admin/messages' },
     { icon: HiDocumentText, label: 'Upload CV', path: '/admin/cv' },
     { icon: HiClipboardList, label: 'Cover Letter', path: '/admin/cover-letter' },
+    { icon: HiKey, label: 'API Key', path: '/admin/api-key' },
     { icon: HiCog, label: 'Settings', path: '/admin/settings' },
   ];
 
