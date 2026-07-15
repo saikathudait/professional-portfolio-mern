@@ -28,15 +28,20 @@ const ManageApiKey = () => {
     configured: false,
     source: '',
     maskedValue: '',
+    modelName: '',
+    modelSource: '',
     updatedAt: null,
   });
   const [apiKey, setApiKey] = useState('');
+  const [modelName, setModelName] = useState('');
 
   const fetchStatus = async () => {
     try {
       setLoading(true);
       const response = await api.get('/api-keys/groq', { cache: false });
-      setStatus(response.data.data || status);
+      const nextStatus = response.data.data || status;
+      setStatus(nextStatus);
+      setModelName(nextStatus.modelName || 'openai/gpt-oss-20b');
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to load API key status');
     } finally {
@@ -52,9 +57,10 @@ const ManageApiKey = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     const cleanKey = apiKey.trim();
+    const cleanModelName = modelName.trim();
 
-    if (!cleanKey) {
-      toast.error('Please enter a Groq API key');
+    if (!cleanKey && !cleanModelName) {
+      toast.error('Please enter a Groq API key or model name');
       return;
     }
 
@@ -65,10 +71,14 @@ const ManageApiKey = () => {
 
     try {
       setSaving(true);
-      const response = await api.put('/api-keys/groq', { apiKey: cleanKey });
+      const response = await api.put('/api-keys/groq', {
+        apiKey: cleanKey,
+        modelName: cleanModelName,
+      });
       setStatus(response.data.data);
+      setModelName(response.data.data?.modelName || cleanModelName);
       setApiKey('');
-      toast.success('Groq API key updated successfully');
+      toast.success('Groq chatbot settings updated successfully');
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to update API key');
     } finally {
@@ -103,6 +113,9 @@ const ManageApiKey = () => {
               <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
                 Saving a new key replaces the old database key. The full key is
                 never shown again after saving.
+              </p>
+              <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                Saving a new model name replaces the old database model name.
               </p>
             </div>
             <button
@@ -144,11 +157,22 @@ const ManageApiKey = () => {
                   <p className="text-sm text-gray-600 dark:text-gray-400">
                     Last database update: {formatDateTime(status.updatedAt)}
                   </p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Model source:{' '}
+                    <span className="font-semibold capitalize">
+                      {status.modelSource || 'default'}
+                    </span>
+                  </p>
                 </div>
               </div>
 
-              <div className="rounded-lg bg-white px-4 py-3 font-mono text-sm text-gray-800 shadow-sm dark:bg-gray-800 dark:text-gray-100">
-                {status.maskedValue || 'No key saved'}
+              <div className="space-y-2">
+                <div className="rounded-lg bg-white px-4 py-3 font-mono text-sm text-gray-800 shadow-sm dark:bg-gray-800 dark:text-gray-100">
+                  {status.maskedValue || 'No key saved'}
+                </div>
+                <div className="rounded-lg bg-white px-4 py-3 font-mono text-sm text-gray-800 shadow-sm dark:bg-gray-800 dark:text-gray-100">
+                  {status.modelName || 'openai/gpt-oss-20b'}
+                </div>
               </div>
             </div>
           </div>
@@ -176,13 +200,36 @@ const ManageApiKey = () => {
               </p>
             </div>
 
+            <div>
+              <label
+                htmlFor="groq-model-name"
+                className="block text-sm font-medium mb-2"
+              >
+                Model Name
+              </label>
+              <input
+                id="groq-model-name"
+                type="text"
+                value={modelName}
+                onChange={(event) => setModelName(event.target.value)}
+                placeholder="openai/gpt-oss-20b"
+                autoComplete="off"
+                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-navy-500 dark:focus:ring-aqua-500 bg-white dark:bg-gray-900"
+              />
+              <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                Example: openai/gpt-oss-20b. If this model is unavailable for
+                your Groq account, the backend can still auto-pick an available
+                chat model.
+              </p>
+            </div>
+
             <button
               type="submit"
-              disabled={saving || !apiKey.trim()}
+              disabled={saving || (!apiKey.trim() && !modelName.trim())}
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-navy-500 text-white rounded-lg hover:bg-navy-600 dark:bg-aqua-500 dark:hover:bg-aqua-600 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <HiLockClosed />
-              {saving ? 'Saving Securely...' : 'Replace Groq API Key'}
+              {saving ? 'Saving Securely...' : 'Save Groq Settings'}
             </button>
           </form>
         </motion.div>
@@ -202,8 +249,8 @@ const ManageApiKey = () => {
             it before storing it and only shows a masked preview here.
           </p>
           <div className="mt-6 rounded-xl bg-white/12 p-4 text-sm text-white/85">
-            After changing the key, the chatbot starts using the latest saved
-            database key automatically.
+            After changing the key or model, the chatbot starts using the latest
+            saved database settings automatically.
           </div>
         </motion.aside>
       </div>
